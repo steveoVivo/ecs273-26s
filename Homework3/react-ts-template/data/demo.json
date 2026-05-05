@@ -2,40 +2,83 @@
     "data":[
         {
             "value": 21,
-            "category": "a"
+            "category": "XOM"
         },
         {
-            "value": 42,
-            "category": "b"
+            "value": 21,
+            "category": "CVX"
         },
         {
-            "value": 43,
-            "category": "c"
+            "value": 21,
+            "category": "HAL"
         },
         {
-            "value": 5,
-            "category": "d"
+            "value": 21,
+            "category": "MMM"
         },
         {
-            "value": 26,
-            "category": "e"
+            "value": 21,
+            "category": "CAT"
         },
         {
-            "value": 7,
-            "category": "f"
+            "value": 21,
+            "category": "DAL"
         },
         {
-            "value": 10,
-            "category": "l"
+            "value": 21,
+            "category": "MCD"
         },
         {
-            "value": 18,
-            "category": "s"
+            "value": 21,
+            "category": "NKE"
         },
         {
-            "value": 85,
-            "category": "x"
+            "value": 21,
+            "category": "KO"
+        },
+        {
+            "value": 21,
+            "category": "JNJ"
+        },
+        {
+            "value": 21,
+            "category": "PFE"
+        },
+        {
+            "value": 21,
+            "category": "UNH"
+        },
+        {
+            "value": 21,
+            "category": "JPM"
+        },
+        {
+            "value": 21,
+            "category": "GS"
+        },
+        {
+            "value": 21,
+            "category": "BAC"
+        },
+        {
+            "value": 21,
+            "category": "AAPL"
+        },
+        {
+            "value": 21,
+            "category": "MSFT"
+        },
+        {
+            "value": 21,
+            "category": "NVDA"
+        },
+        {
+            "value": 21,
+            "category": "GOOGL"
+        },
+        {
+            "value": 21,
+            "category": "META"
         }
     ]
-
 }

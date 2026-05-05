@@ -1,0 +1,51 @@
+Title: My Top 2 Generative AI Stocks for Long-Term Investors for May 2026
+Date: 2026-05-04 20:25
+URL: https://www.fool.com/investing/2026/05/04/my-top-x-generative-ai-stocks-for-long-term-invest/?.tsrc=rss
+
+Broadcom and Alphabet are both great long-term plays on the generative AI boom.
+The AI market has grown rapidly over the past few years. A lot of that expansion was driven by new generative AI platforms that create content (text, images, videos, code, music, or 3D models) by learning and identifying patterns in existing data. These platforms, including OpenAI's ChatGPT and Anthropic's Claude, popularized AI tools among mainstream users. More companies also realized they could replace human workers with generative AI bots.
+That cycle has sparked a spending spree in the AI market that won't burn out anytime soon. According to Grand View Research, the global AI market could expand at a 30.6% CAGR from 2026 to 2033 as more enterprises adopt generative AI and agentic AI solutions.
+Image source: Getty Images.
+To capitalize on that secular trend, you should invest in the companies that provide the best picks and shovels for the AI gold rush. Two of those obvious long-term winners are Broadcom (AVGO 1.15%) and Alphabet (GOOG 0.84%) (GOOGL 0.59%), which are still worth buying this month even as the market hovers near its all-time highs.
+Broadcom sells a broad range of chips for the mobile, data center, networking, wireless, data storage, and industrial markets. It also expanded its infrastructure software business over the past decade with a series of major acquisitions.
+This Card Just Received a Rare 5-Star Rating
+Our team of credit card pros don’t just recommend this card—they actually use it. Motley Fool Money calls it a top pick for a reason.
+That mix makes Broadcom more diversified than stand-alone chipmakers or software companies, and it's growing like a weed. Most of its recent growth has been driven by its custom application-specific integrated circuits (ASICs) for accelerating AI tasks.
+Many hyperscalers, including Meta Platforms and Alphabet's Google, are using Broadcom's custom ASICs to accelerate inference tasks faster than stand-alone GPUs. When deployed at scale, Broadcom's chips can help hyperscalers reduce data center expenses and their long-term reliance on Nvidia's market-leading general-purpose data center GPUs.
+When our analyst team has a stock tip, it can pay to listen. After all, Stock Advisor’s total average return is 968%* — a market-crushing outperformance compared to 202% for the S&P 500.
+They just revealed what they believe are the 10 best stocks for investors to buy right now, available when you join Stock Advisor.
+*Stock Advisor returns as of May 4, 2026. 
+That's why Broadcom's sales of AI chips surged 65% to $20 billion in fiscal 2025 (which ended last November), accounting for 31% of its top line. It expects that figure to soar to $60-$90 billion by the end of fiscal 2027 (which would account for 38%-57% of its projected revenue) and offset its slower sales of non-AI chips and infrastructure software.
+From fiscal 2025 to fiscal 2028, analysts expect Broadcom's revenue and adjusted earnings before interest, taxes, depreciation, and amortization (EBITDA) to grow at CAGRs of 47% and 46%, respectively, as the AI market expands. With an enterprise value of $2.02 trillion, it still looks reasonably valued at 28 times this year's adjusted EBITDA.
+Alphabet, the parent company of Google, is one of the few tech giants that can own and monetize AI at a global scale. Google is a full-stack AI infrastructure company that offers its own chips, large language models, cloud infrastructure platform, and cloud-based apps. Its massive ecosystem -- which includes Google Search, YouTube, Android, Gmail, Chrome, and other popular services -- enables it to instantly roll out AI services to billions of users worldwide.
+Simply put, AI doesn't threaten Google's core business -- it refines it by improving its search results, targeted ads, and cloud-based services. That sets it apart from other software companies that are being disrupted by new AI technologies. It also gives it a brighter future than smaller AI players with promising tech but murky distribution and monetization strategies.
+Alphabet is firmly profitable, and most of its profits come from Google's higher-margin advertising business. That profit engine enables it to expand its capital-intensive cloud and AI features without crushing its operating margins. It also enables the company to streamline its operations, cut costs, and reduce its dependence on human employees.
+From 2025 to 2028, analysts expect Alphabet's revenue and EPS to grow at CAGRs of 19% and 16%, respectively. Its stock doesn't seem overvalued at 27 times this year's earnings, and it could remain one of the most balanced ways to profit from the AI market's ongoing expansion.
+
+ 
+
+
+Before you buy stock in Broadcom, consider this:
+The Motley Fool Stock Advisor analyst team just identified what they believe are the 10 best stocks for investors to buy now… and Broadcom wasn’t one of them. The 10 stocks that made the cut could produce monster returns in the coming years.
+Consider when Netflix made this list on December 17, 2004... if you invested $1,000 at the time of our recommendation, you’d have $496,473!* Or when Nvidia made this list on April 15, 2005... if you invested $1,000 at the time of our recommendation, you’d have $1,216,605!*
+Now, it’s worth noting Stock Advisor’s total average return is 968% — a market-crushing outperformance compared to 202% for the S&P 500. Don't miss the latest top 10 list, available with Stock Advisor, and join an investing community built by individual investors for individual investors.
+See the 10 stocks ›
+*Stock Advisor returns as of May 4, 2026. 
+
+Leo Sun has positions in Meta Platforms. The Motley Fool has positions in and recommends Alphabet, Broadcom, Meta Platforms, and Nvidia. The Motley Fool has a disclosure policy.
+This tech could reach $80 trillion. Imagine a technology worth over 18 Nvidias.
+What in the world could be worth 18 Nvidias? The answer is a radical tech breakthrough that our experts think is transforming every walk of life. And this giant leap forward has many on Wall Street very excited.
+Continue ›
+
+*Average returns of all recommendations since inception. Cost basis and return based on previous market day close.
+This Card Just Received a Rare 5-Star Rating
+Our team of credit card pros don’t just recommend this card—they actually use it. Motley Fool Money calls it a top pick for a reason.
+Invest better with The Motley Fool. Get stock recommendations, portfolio guidance, and more from The Motley Fool's premium services.
+Making the world smarter, happier, and richer.
+© 1995 - 2026 The Motley Fool. All rights reserved.
+Market data powered by Xignite and Polygon.io.
+About The Motley Fool
+Our Services
+Around the Globe
+Free Tools
+Affiliates & Friends
