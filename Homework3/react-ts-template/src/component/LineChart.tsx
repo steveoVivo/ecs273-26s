@@ -1,73 +1,77 @@
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { isEmpty, debounce } from 'lodash';
-import Data from "../../data/demo.json";
 
-import { Bar, ComponentSize, Margin } from '../types';
+import { Bar, ComponentSize, Margin, TickerPoint } from '../types';
 
 const dataLocation = "../../data/stockdata";
 
-// A "extends" B means A inherits the properties and methods from B.
-interface CategoricalBar extends Bar {
-    category: string;
+interface DataPoint extends Bar {
+  date: Date;
+}
+
+type ColorValue = {
+  value: keyof TickerPoint;
+  color: string;
 }
 
 const margin = { left: 40, right: 20, top: 20, bottom: 60 } as Margin;
   
+// TODO: Control + f "bar" and replace it with "line"
 export function LineChart() {
-  const barData: CategoricalBar[] = [];
+  let currentData: TickerPoint[] = []
 
-  // -------------> Data Retrieval Code
-  // TODO: Consider using some kind of filesystem if possible to grab all the tickers instead of from the .json file
-  const tickers: string[] = (Data.data).map(data => data.category);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
-  tickers.forEach((ticker: string) => {
-    barData.push({
-      value: 0,
-      category: ticker
-    });
-  })
+  useEffect(() => {
+    // NOTE: This should always be called after mount, but it'll completely break if this is the case
+    if (!containerRef.current || !svgRef.current) return;
 
-  // TODO: You need to find a better way to do this. Using an array of promises is just a mess
-  tickers.forEach((ticker: string) => {
-    const fileLocation = dataLocation + "/" + ticker + ".csv";
+    const categorySelect = d3.select('#bar-select');
+
+    // ----------> Draw: Initial Draw <----------
+    const initialSelected = categorySelect.property('value');
+    const fileLocation = dataLocation + "/" + initialSelected + ".csv";
     d3.csv(fileLocation).then((data: any[]) => {
-      // TODO: Stress test by manually messing with data to see what happens when date is invalid. Might need a try / catch
-      const cleanedData = data.map(stock => {
-        stock['Date'] = new Date(stock['Date']);
-        return stock;
-      });
-      const newestStock = cleanedData.reduce((stock, nextStock) => {
-        return stock['Date'] > nextStock['Date'] ? stock : nextStock
-      });
+      currentData = cleanTickerData(data);
 
-      // TODO: Error handle for idx == -1 (or whatever unfound returns)
-      const idx: number = barData.findIndex(bar => bar.category == ticker);
-      barData[idx] = {
-        value: newestStock['Open'],
-        category: ticker
+      // We assert at the start of the useEffect that there is a value in current
+      const { width, height } = (containerRef.current!).getBoundingClientRect();
+      if (width && height) {
+        drawChart(svgRef.current!, currentData, width, height);
       }
-
     }).catch(error => {
       console.error("Error: ", error);
     });
-  });
 
-  // -------------> Rendering Code
-  const containerRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  // const bars: CategoricalBar[] = Data.data;
 
-  useEffect(() => {
-    if (!containerRef.current || !svgRef.current) return;
+    // ----------> Draw: When Selection Changes <----------
+    // TODO: Consider if you should debounce this
+    categorySelect
+      .on('change', function(event) {
+        const ticker = event.target.value;
+        const fileLocation = dataLocation + "/" + ticker + ".csv";
+        d3.csv(fileLocation).then((data: any[]) => {
+          currentData = cleanTickerData(data);
 
+          // We assert at the start of the useEffect that there is a value in current
+          const { width, height } = (containerRef.current!).getBoundingClientRect();
+          if (width && height) {
+            drawChart(svgRef.current!, currentData, width, height);
+          }
+        });
+      });
+
+
+    // ----------> Draw: Every Page Resize <----------
     const resizeObserver = new ResizeObserver(
       debounce((entries: ResizeObserverEntry[]) => {
         for (const entry of entries) {
           if (entry.target !== containerRef.current) continue;
           const { width, height } = entry.contentRect as ComponentSize;
-          if (width && height && !isEmpty(barData)) {
-            drawChart(svgRef.current!, barData, width, height);
+          if (width && height && !isEmpty(currentData)) {
+            drawChart(svgRef.current!, currentData, width, height);
           }
         }
       }, 100)
@@ -75,103 +79,182 @@ export function LineChart() {
 
     resizeObserver.observe(containerRef.current);
 
-    // Draw initially based on starting size
-    const { width, height } = containerRef.current.getBoundingClientRect();
-    if (width && height) {
-      drawChart(svgRef.current!, barData, width, height);
-    }
-
-    console.log(barData);
-
     return () => resizeObserver.disconnect();
-  }, [barData]);
+  }, []);
 
-  
+  // TODO: Eventually it would be good not to hardcode this, thought not necessary
+  const colorData: ColorValue[] = ['open', 'high', 'low', 'close'].map((tickerKey: string) => {
+    return {
+      value: tickerKey as keyof TickerPoint,
+      color: getColorFromColumn(tickerKey as keyof TickerPoint)
+    }
+  });
 
   return (
-    <div className="chart-container d-flex" ref={containerRef} style={{ width: '100%', height: '100%' }}>
-      <svg id="bar-svg" ref={svgRef} width="100%" height="100%"></svg>
+    <div className="flex w-full h-full" style={{ width: '100%', height: '100%' }}>
+      <div className="flex-1 p-4 h-full" ref={containerRef}>
+        <svg id="bar-svg" ref={svgRef} width="100%" height="100%"></svg>
+      </div>
+      <div className="w-[200px] flex-none p-4 h-35">
+        <div className="grid auto-rows-fr h-full border">
+          <div className="border font-bold text-center">Legend</div>
+          {
+          colorData.map((data, index) => (
+            <div className="flex items-center" key={index}>
+              <div className="h-[50%] w-[20px] m-[2px] border" style={{ backgroundColor: data.color}}></div>
+              <div className="h-full mb-[5px]"> {data.value} </div>
+            </div>
+          ))
+          }
+        </div>
+      </div>
     </div>
   );
 }
 
-function drawChart(svgElement: SVGSVGElement, bars: CategoricalBar[], width: number, height: number, ) {
-    const svg = d3.select(svgElement);
-    svg.selectAll('*').remove(); // clear previous render
+function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: number, height: number) {
 
-    const yExtents = d3.extent(bars.map((d) => d.value)) as [number, number];
-    const xCategories = [...new Set(bars.map((d) => d.category))];
+  // TODO: Error handle better with tis guy
+  if(points.length < 2) {
+    return;
+  }
 
-    const xScale = d3.scaleBand()
-        .rangeRound([margin.left, width - margin.right])
-        .domain(xCategories)
-        .padding(0.1);
+  const svg = d3.select(svgElement);
+  svg.selectAll('*').remove(); // clear previous render
 
-    const yScale = d3.scaleLinear()
-        .range([height - margin.bottom, margin.top])
-        .domain([0, yExtents[1]]);
-    
-    
+  // ----------> Calculate X-Values <----------
+  // TODO: we need to ensure there will always be at least 2 data points
+  const xExtents = d3.extent(points.map(point => point.date)) as [Date, Date];
+  const xScale = d3.scaleTime()
+    .domain(xExtents)
+    .rangeRound([margin.left, width - margin.right])
 
-    svg.append('g')
-        .attr('transform', `translate(0, ${height - margin.bottom})`)
-        .call(d3.axisBottom(xScale))
-    svg.append('g')
-        .attr('transform', `translate(${margin.left}, 0)`)
-        .call(d3.axisLeft(yScale));
+  // ----------> Calculate Y-Values <----------
+  const maxValue = Math.max(
+    ...points.map(point => point.open),
+    ...points.map(point => point.high),
+    ...points.map(point => point.low),
+    ...points.map(point => point.close)
+  ) * 1.1;
+  const minValue = Math.min(
+    ...points.map(point => point.open),
+    ...points.map(point => point.high),
+    ...points.map(point => point.low),
+    ...points.map(point => point.close)
+  ) * 0.9;
+  // Add an extra 10% to the top and bottom of the chart, so the highest point isn't scraping the ceiling and the lowest isn't 0
+  const yScale = d3.scaleLinear()
+    .domain([minValue, maxValue])
+    .range([height - margin.bottom, margin.top])
 
-    svg.append('g')
-        .attr('transform', `translate(10, ${height / 2}) rotate(-90)`)
-        .append('text')
-        .text('Value')
-        .style('font-size', '.8rem');
+  // xAxis Scaling
+  const xAxis = svg.append('g')
+    .attr('transform', `translate(0, ${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale))
+  // yAxis Scaling
+  const yAxis = svg.append('g')
+    .attr('transform', `translate(${margin.left}, 0)`)
+    .call(d3.axisLeft(yScale));
+  // Line generator
+  const dataLine = d3.line<DataPoint>()
+    .x(p => xScale(p.date))
+    .y(p => yScale(p.value));
 
-    svg.append('g')
-        .attr('transform', `translate(${width / 2 - margin.left}, ${height - margin.top - 5})`)
-        .append('text')
-        .text('Categories')
-        .style('font-size', '.8rem');
 
-    svg.append('g')
-        .selectAll('rect')
-        .data(bars)
-        .join('rect')
-        .attr('x', (d) => xScale(d.category)!)
-        .attr('y', (d) => yScale(d.value))
-        .attr('width', xScale.bandwidth())
-        .attr('height', (d) => Math.abs(yScale(0) - yScale(d.value)))
-        .attr('fill', 'teal')
-        .attr('class', 'bar')
-        .attr('id', (d) => `bar-${d.category}`);
 
-    svg.append('g')
-        .append('text')
-        .attr('transform', `translate(${width / 2}, ${height - margin.top + 5})`)
-        .attr('dy', '0.5rem')
-        .style('text-anchor', 'middle')
-        .style('font-weight', 'bold')
-        .text('Distribution of Demo Data');
-    const categorySelect = d3.select('#bar-select');
+  // ----------> Create Path Elements <----------
+  const tickerPointKeys: string[] = Object.keys(points[0]);
+  const paths: d3.Selection<SVGPathElement, DataPoint[], null, undefined>[] = [];
+  tickerPointKeys.forEach((key: string) => {
+    // It's bad form to reference it like this but that's okay for this assignment
+    if (key == 'date') return;
+    const dataPoints: DataPoint[] = points.map((point: TickerPoint) => {
+      return {
+        date: point['date'],
+        // We know for sure that this will work, but it's a hacky fix
+        value: point[key as keyof TickerPoint] as number
+      }
+    });
 
-    // call it once initially
-    const initialSelected = categorySelect.property('value');
-    console.log('Initial Selected: ' + initialSelected);
-    highlightBar(initialSelected);
-    
-    // change when the select changes
-    categorySelect
-      .on('change', function(event) {
-        const selectedCategory = event.target.value;
-        highlightBar(selectedCategory);
+    const color = getColorFromColumn(key as keyof TickerPoint);
+    const path = svg.append("path")
+      .datum(dataPoints)
+      .attr("fill", "none")
+      .attr("stroke", color)
+      .attr("stroke-width", 0.25)
+      .attr("d", dataLine)
 
-      })
+    paths.push(path);
+  });
+
+
+
+  // ----------> Add Zoom Functionality <----------
+  const zoomFunction = (event: any) => {
+    // Redraw x-scale
+    const xTicks = event.transform.rescaleX(xScale);
+    xAxis.call(d3.axisBottom(xTicks));
+    // Redraw lines
+    paths.forEach(path => {
+      path.attr("d", dataLine.x(d => xTicks(d.date)));
+    });
+  }
+
+  const zoomAction: any = d3.zoom()
+    .scaleExtent([1, 80]) // One week of data at max zoom for 2yr
+    .translateExtent([[0, 0], [width, height]]) 
+    .on("zoom", zoomFunction);
+
+  svg.call(zoomAction);
+
+
+
+  // ----------> Prevent Clipping <----------
+  const clipPath = svg.append("defs")
+    .append("clipPath")
+    .attr("id", "line-chart-clip-path")
+
+  // Make sure the clip starts after the y-scale and ends w the svg
+  // x/width are most important, it just fails without y/height
+  clipPath.append("rect")
+    .attr("width", width - margin.right - margin.left)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("x", margin.left)
+    .attr("y", margin.top);
+
+  // Give the path object a limited non-clipping area
+  paths.forEach(path => {
+    path.attr("clip-path", "url(#line-chart-clip-path)");
+  });
 }
 
-function highlightBar(selectedCategory: string) {
-  // 1. First, reset all bars back to normal
-  d3.selectAll('.bar')
-    .attr('fill', 'pink'); // whatever your default color is
-  // 2. Then highlight the selected bar
-  d3.select(`#bar-${selectedCategory}`)
-    .attr('fill', 'yellow'); // or any color you like
+function cleanTickerData(rawData: any[]): TickerPoint[] {
+  // TODO: Consider adding a try/catch for invalid dates or data
+  return rawData.map((tickerData: any) => {
+    return {
+      date: new Date(tickerData['Date']),
+      open: Number(tickerData['Open']),
+      high: Number(tickerData['High']),
+      low: Number(tickerData['Low']),
+      close: Number(tickerData['Close'])
+    }
+  });
+}
+
+// Color palette generated from:
+// https://www.learnui.design/tools/data-color-picker.html
+function getColorFromColumn(selectedCategory: keyof TickerPoint): string {
+  switch (selectedCategory) {
+    case 'open':
+      return '#003f5c';
+    case 'high':
+      return '#bb4e99';
+    case 'low':
+      return '#ff5f68';
+    case 'close':
+      return '#ffa600';
+  }
+
+  // Equivalent to defaulting
+  return '#575092';
 }

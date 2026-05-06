@@ -15,6 +15,15 @@ export interface Point {
     readonly posY: number;
 }
 
-export interface Bar{
+export interface Bar {
     readonly value: number;
+}
+
+// Added by Steven
+export interface TickerPoint {
+  date: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
 }
