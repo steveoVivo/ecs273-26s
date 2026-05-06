@@ -26,7 +26,7 @@ export default function App() {
             </div>
           </div>
           <div className="h-3/4 p-2">
-            <h3 className="text-left text-xl h-[2rem]">View 2 to be replaced by the view title</h3>
+            <h3 className="text-left text-xl h-[2rem]">t-SNE Plot</h3>
             <div className="border-2 border-gray-300 rounded-xl h-[calc(100%_-_2rem)]">
               <TSneChart />
             </div>
