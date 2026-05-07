@@ -96,7 +96,7 @@ export function LineChart() {
         <svg id="bar-svg" ref={svgRef} width="100%" height="100%"></svg>
       </div>
       <div className="w-[200px] flex-none p-4 h-35">
-        <div className="grid auto-rows-fr h-full border">
+        <div className="grid auto-rows-fr h-full border bg-slate-100">
           <div className="border font-bold text-center">Legend</div>
           {
           colorData.map((data, index) => (

@@ -73,7 +73,7 @@ export function TSneChart() {
           <div className="font-bold"> {unselectedDataText} </div>
           <div> </div>
         </div>
-        <div className="grid auto-rows-fr h-5/8 border mb-[20px]">
+        <div className="grid auto-rows-fr h-5/8 border mb-[20px] bg-slate-100">
           <div className="border font-bold text-center">Legend</div>
           {
           labelList.map((label, index) => (
@@ -146,7 +146,6 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
   // TODO: You'll need to get the zoom if you want to do this with a transition animation
   const scaleFactor = 2;
   circles.on('mouseover', (event, point: TSNEPoint) => {
-    console.log('Mouseover');
     const circle = d3.select(event.currentTarget);
     const currentRadius = Number(circle.node().getAttribute('r'));
     circle
@@ -160,8 +159,7 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
       .text(point.ticker);
   });
 
-  circles.on('mouseleave', (event, __) => {
-    console.log('Mouseout')
+  circles.on('mouseleave', (event) => {
     const circle = d3.select(event.currentTarget);
     const currentRadius = Number(circle.node().getAttribute('r'));
     circle
