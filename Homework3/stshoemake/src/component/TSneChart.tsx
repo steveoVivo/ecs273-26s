@@ -70,18 +70,18 @@ export function TSneChart() {
       </div>
       <div className="w-[250px] p-4 flex flex-col h-full">
         {/* --- Selected Point Indicator --- */}
-        <div id="tsne-select" className="h-1/4"> 
+        <div id="tsne-select" className="flex-none py-2"> 
           <div className="font-bold"> {unselectedDataText} </div>
-          <div> </div>
+          <div style={{visibility: "hidden"}}> - </div>
         </div>
         {/* --- Legend --- */}
-        <div className="grid auto-rows-fr h-5/8 border mb-[20px] bg-slate-100">
+        <div className="grid auto-rows-fr h-60 border mb-[20px] bg-slate-100">
           <div className="border font-bold text-center">Legend</div>
           {
           labelList.map((label, index) => (
             <div className="flex items-center" key={index}>
               <div className="h-[35%] w-[20px] m-[4px] border" style={{ backgroundColor: getColorFromLabel(label)}}></div>
-              <div className="h-[50%] mb-[5px]"> {label} </div>
+              <div className="h-[50%] mb-[8px]"> {label} </div>
             </div>
           ))
           }
@@ -175,14 +175,16 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
     const currentRadius = d3.zoomTransform(svg.node()!).k * radius;
 
     circle
-      .attr('r', currentRadius * scaleFactor)
+      .transition()
+      .attr('r', currentRadius * scaleFactor);
 
     d3.select("#tsne-select :nth-child(1)")
       .text(selectedDataText)
       .style('color', getColorFromLabel(point.label));
 
     d3.select("#tsne-select :nth-child(2)")
-      .text(point.ticker);
+      .text(point.ticker)
+      .style('visibility', null);
   });
 
   circles.on('mouseleave', (event) => {
@@ -191,14 +193,16 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
     const currentRadius = d3.zoomTransform(svg.node()!).k * radius;
 
     circle
-      .attr('r', currentRadius)
+      .transition()
+      .attr('r', currentRadius);
 
     d3.select("#tsne-select :nth-child(1)")
       .text(unselectedDataText)
       .style('color', 'black');
 
     d3.select("#tsne-select :nth-child(2)")
-      .text('');
+      .text('-')
+      .style('visibility', 'hidden');
   });
 
 
