@@ -97,7 +97,7 @@ export function LineChart() {
       <div className="flex-1 h-full" ref={containerRef}>
         <svg id="bar-svg" ref={svgRef} width="100%" height="100%"></svg>
       </div>
-      <div className="w-[200px] flex-none p-4 h-35">
+      <div className="w-[150px] flex-none p-4 h-35">
         <div className="grid auto-rows-fr h-full border bg-slate-100">
           <div className="border font-bold text-center">Legend</div>
           {
