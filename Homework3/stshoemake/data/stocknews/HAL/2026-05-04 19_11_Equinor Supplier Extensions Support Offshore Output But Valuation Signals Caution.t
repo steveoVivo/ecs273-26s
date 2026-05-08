@@ -4,6 +4,20 @@ URL: https://finance.yahoo.com/sectors/energy/articles/equinor-supplier-extensio
 
 Oops, something went wrong
 Tip: Try a valid symbol or a specific company name for relevant results
+Trump’s latest tariff defeat could give businesses a 2-month reprieve before new duties are imposed
+Trade court strikes down Trump's 10% blanket tariffs
+The Dow slipped, while the S&P 500 and Nasdaq retreated from record highs as the AI trade took a breather
+US stocks tick up in wait for Iran-US deal update, as earnings roll in
+The hottest neighborhoods in the country are almost all in the Midwest or Florida. Here's why.
+A top Iranian official is in China. It's setting the tone for Trump’s meeting with Xi next week.
+The Dow jumped 600 points while the S&P 500 and Nasdaq hit records amid a tech-driven rally
+The Nasdaq gained 1.4% as strong tech earnings fueled the AI trade
+'Sell in May' has been a bad strategy this century
+Stocks rose at the open amid rising hopes for an Iran peace deal, upbeat tech earnings
+Anthropic's CEO says a big shift is coming for software companies — and some will 'completely go bust'
+AMD stock leaps on earnings beat, better-than-expected outlook
+The S&P 500 and Nasdaq notched fresh records as tech stocks rose and oil fell
+US stocks rise at the open as oil retreats, wave of solid earnings rolls in
 Spirit Airlines is gone. Here are the low-cost airlines filling the gap.
 Court documents show Musk warned OpenAI execs they would become 'the most hated men in America' days before the trial began
 Palantir beats earnings expectations, with revenue rising 85% on booming US business
@@ -40,20 +54,6 @@ Meta stock falls despite earnings beat as AI spending plans spook investors
 Alphabet earnings top estimates on strong Google Cloud growth
 The Dow and S&P 500 slipped as oil surged, with Big Tech earnings on deck
 Powell will stay on as governor, says he has no choice amid legal attacks on Fed
-Powell holds what is expected to be his final press conference as chair after the Fed keeps rates steady
-Fed holds interest rates steady with no end to Iran war in sight
-Elon Musk testified again in the OpenAI trial, describing his behavior at the company and its nonprofit 'halo'
-A Senate committee confirmed Kevin Warsh, sending his nomination to be chairman of the Fed to the full Senate
-Stocks slipped at the open as investors awaited a Fed decision and Big Tech earnings
-The Dow, S&P 500, and Nasdaq dropped as chip stocks sank and oil rose
-S&P 500 and Nasdaq sink, Dow rises as OpenAI-linked stocks falter and UAE exits OPEC
-The United Arab Emirates will leave OPEC+ effective May 1
-The only number that matters for 'Magnificent 7' earnings this week
-The S&P 500 and Nasdaq notched fresh records, while oil edged higher as markets weighed Iran peace odds
-Gasoline prices are expected to turn higher as oil holds above $100 per barrel amid uncertainty over the US-Iran war
-US stocks open mixed as markets brace for a big week of Big Tech earnings.
-The rapid run-up in chip stocks has reignited the AI trade as the S&P 500 and Nasdaq sit at record highs.
-Americans are feeling less confident about their retirement savings. Here are some of the best ways to get started early.
 The above button links to Coinbase. Yahoo Finance is not a broker-dealer or investment adviser and does not offer securities or cryptocurrencies for sale or facilitate trading. Coinbase pays us for certain activity generated through this link. Prices displayed are informational.
 Find winning stocks in any market cycle. Join 7 million investors using Simply Wall St's investing ideas for FREE.
 Equinor has extended key supplier contracts for drilling and well services on the Norwegian Continental Shelf, with an aggregate value of about NOK 17b.
