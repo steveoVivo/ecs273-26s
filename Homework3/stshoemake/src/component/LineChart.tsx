@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { isEmpty, debounce } from 'lodash';
 
-import { Bar, ComponentSize, Margin, TickerPoint } from '../types';
+import { Bar, ComponentSize, Margin, TickerPoint, tickerFieldList, TickerField } from '../types';
 
 const dataLocation = "../../data/stockdata";
 
@@ -11,7 +11,7 @@ interface DataPoint extends Bar {
 }
 
 type ColorValue = {
-  value: keyof TickerPoint;
+  value: TickerField | "date";
   color: string;
 }
 
@@ -85,10 +85,10 @@ export function LineChart() {
   }, []);
 
   // TODO: Eventually it would be good not to hardcode this, thought not necessary
-  const colorData: ColorValue[] = ['open', 'high', 'low', 'close'].map((tickerKey: string) => {
+  const colorData: ColorValue[] = tickerFieldList.map((tickerKey: TickerField) => {
     return {
-      value: tickerKey as keyof TickerPoint,
-      color: getColorFromColumn(tickerKey as keyof TickerPoint)
+      value: tickerKey,
+      color: getColorFromColumn(tickerKey)
     }
   });
 

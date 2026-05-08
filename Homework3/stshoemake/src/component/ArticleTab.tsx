@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { useEffect, useRef, useState } from "react";
 import { isEmpty, debounce } from 'lodash';
 
-import { Bar, ComponentSize, Margin, TickerPoint } from '../types';
+import { Margin } from '../types';
 import Filenames from '../../data/stocknews/filenames.json'
 
 const dataLocation = "../../data/stocknews";
@@ -29,7 +29,7 @@ export function ArticleTab() {
 
 
   // ----------> Draw: Retrieve Article Content (if relevant) <----------
-  if (articleIndex != -1 && articleContent.length == 0) {
+  if (articleIndex != -1 && isEmpty(articleContent)) {
     const categorySelect = d3.select('#bar-select');
     const ticker = categorySelect.property('value');
     const articleTitle = filenameDict[ticker][articleIndex];
@@ -94,7 +94,7 @@ export function ArticleTab() {
   }, []);
 
   /* --- No Existing Articles View --- */
-  if (titles.length == 0) {
+  if (isEmpty(titles)) {
     return (
       <div className="grid auto-rows-fr h-full w-full" ref={containerRef}>
         <div className="text-center"> No articles to display for current ticker.</div>
