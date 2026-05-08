@@ -15,7 +15,7 @@ type ColorValue = {
   color: string;
 }
 
-const margin = { left: 40, right: 20, top: 20, bottom: 60 } as Margin;
+const margin = { left: 45, right: 20, top: 20, bottom: 40 } as Margin;
   
 // TODO: Control + f "bar" and replace it with "line"
 export function LineChart() {
@@ -39,6 +39,7 @@ export function LineChart() {
       // We assert at the start of the useEffect that there is a value in current
       const { width, height } = (containerRef.current!).getBoundingClientRect();
       if (width && height) {
+        console.log(`Height (initial draw): ${height}`);
         drawChart(svgRef.current!, currentData, width, height);
       }
     }).catch(error => {
@@ -47,9 +48,8 @@ export function LineChart() {
 
 
     // ----------> Draw: When Selection Changes <----------
-    // TODO: Consider if you should debounce this
     categorySelect
-      .on('change', function(event) {
+      .on('change.first', function(event) {
         const ticker = event.target.value;
         const fileLocation = dataLocation + "/" + ticker + ".csv";
         d3.csv(fileLocation).then((data: any[]) => {
@@ -58,6 +58,7 @@ export function LineChart() {
           // We assert at the start of the useEffect that there is a value in current
           const { width, height } = (containerRef.current!).getBoundingClientRect();
           if (width && height) {
+            console.log(`Height (selection draw): ${height}`);
             drawChart(svgRef.current!, currentData, width, height);
           }
         });
@@ -71,6 +72,7 @@ export function LineChart() {
           if (entry.target !== containerRef.current) continue;
           const { width, height } = entry.contentRect as ComponentSize;
           if (width && height && !isEmpty(currentData)) {
+            console.log(`Height (resize draw): ${height}`);
             drawChart(svgRef.current!, currentData, width, height);
           }
         }
@@ -91,8 +93,8 @@ export function LineChart() {
   });
 
   return (
-    <div className="flex w-full h-full" style={{ width: '100%', height: '100%' }}>
-      <div className="flex-1 p-4 h-full" ref={containerRef}>
+    <div className="flex w-full h-full">
+      <div className="flex-1 h-full" ref={containerRef}>
         <svg id="bar-svg" ref={svgRef} width="100%" height="100%"></svg>
       </div>
       <div className="w-[200px] flex-none p-4 h-35">
@@ -113,23 +115,23 @@ export function LineChart() {
 }
 
 function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: number, height: number) {
+  const svg = d3.select(svgElement);
+  svg.selectAll('*').remove(); // clear previous render
 
   // TODO: Error handle better with tis guy
   if(points.length < 2) {
     return;
   }
 
-  const svg = d3.select(svgElement);
-  svg.selectAll('*').remove(); // clear previous render
-
-  // ----------> Calculate X-Values <----------
+  // ----------> Add Scale Graphics <----------
   // TODO: we need to ensure there will always be at least 2 data points
+  // X-Scale
   const xExtents = d3.extent(points.map(point => point.date)) as [Date, Date];
   const xScale = d3.scaleTime()
     .domain(xExtents)
     .rangeRound([margin.left, width - margin.right])
 
-  // ----------> Calculate Y-Values <----------
+  // Y-Scale
   const maxValue = Math.max(
     ...points.map(point => point.open),
     ...points.map(point => point.high),
@@ -142,6 +144,8 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
     ...points.map(point => point.low),
     ...points.map(point => point.close)
   ) * 0.9;
+
+  // ----------> Calculate Scales <----------
   // Add an extra 10% to the top and bottom of the chart, so the highest point isn't scraping the ceiling and the lowest isn't 0
   const yScale = d3.scaleLinear()
     .domain([minValue, maxValue])
@@ -226,6 +230,27 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
   paths.forEach(path => {
     path.attr("clip-path", "url(#line-chart-clip-path)");
   });
+
+
+  // ----------> Add Labels <----------
+  svg.append('text')
+    .attr('x', (width / 2))
+    .attr('y', height - 5)
+    .attr('font-size', '12px')
+    .attr('font-weight', 'bold')
+    .text("Date");
+
+  // Preprocess positions ahead of time, helps to rotate it about its own center
+  const xPos = 12;
+  const yPos = (height / 2);
+  const rotationText = 'rotate(-90, ' + xPos + ', ' + yPos + ')'
+  svg.append('text')
+    .attr('x', xPos)
+    .attr('y', yPos)
+    .attr('transform', rotationText)
+    .attr('font-size', '12px')
+    .attr('font-weight', 'bold')
+    .text("Price ($)");
 }
 
 function cleanTickerData(rawData: any[]): TickerPoint[] {

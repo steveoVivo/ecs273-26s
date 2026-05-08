@@ -25,7 +25,6 @@ export function ArticleTab() {
   // Easier to work with if I type it like this
   const filenameDict: Record<string, string[]> = Filenames as Record<string, string[]>;
 
-  console.log(titles);
 
 
 
@@ -44,9 +43,9 @@ export function ArticleTab() {
         setArticleContent(textArray);
       })
       .catch(err => {
-        console.log('Error Retrieving text');
-        setArticleContent(['Invalid content']);
-      })
+        console.error(err);
+         setArticleContent(["Error loading content for this aricle"]);
+      });
   }
 
   useEffect(() => {
@@ -59,13 +58,16 @@ export function ArticleTab() {
     // ----------> Handle: Changing Selected ticker <----------
     // Get initial ticker
     const initialSelected = categorySelect.property('value');
+    // const initialSelected = 'XOM';
     setTitles(filenameDict[initialSelected] ?? []);
 
     // Get ticker when changed
     categorySelect
-      .on('change', function(event) {
+      .on('change.second', function(event) {
         const ticker = event.target.value;
         setTitles(filenameDict[ticker] ?? []);
+        setArticleIndex(-1);
+        setArticleContent([]);
       });
 
 
@@ -102,8 +104,8 @@ export function ArticleTab() {
 
   return (
     <div className="flex h-full w-full" style={{ width: '100%', height: '100%' }} ref={containerRef}>
-      {/* --- All Articles View --- */
-      (articleIndex == -1) 
+      {(articleIndex == -1) 
+        /* --- All Articles View --- */
         ? <div className="h-full flex flex-col overflow-y-auto">
           {titles.map((text, index) => (
             // Background color is slate-300, the webpage itself uses slate-200
@@ -120,7 +122,7 @@ export function ArticleTab() {
             {cleanTitle(titles[articleIndex])}
           </div>
           {articleContent.map((text, index) => (
-            <div key={index}> {text} </div>
+            <div className="p-1" key={index}> {text} </div>
           ))}
         </div>
       }

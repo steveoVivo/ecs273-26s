@@ -65,7 +65,7 @@ export function TSneChart() {
 
   return (
     <div className="flex w-full h-full" style={{ width: '100%', height: '100%' }}>
-      <div className="flex-1 p-4 h-full" ref={containerRef}>
+      <div className="flex-1 h-full" ref={containerRef}>
         <svg id="tsne-svg" ref={svgRef} width="100%" height="100%"></svg>
       </div>
       <div className="w-[250px] p-4 flex flex-col h-full">
@@ -91,13 +91,13 @@ export function TSneChart() {
 
 function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number, height: number) {
 
+  const svg = d3.select(svgElement);
+  svg.selectAll('*').remove(); // clear previous render
+
   // TODO: Error handle better with tis guy
   if(points.length < 2) {
     return;
   }
-
-  const svg = d3.select(svgElement);
-  svg.selectAll('*').remove(); // clear previous render
 
   // ----------> Calculate X-Values <----------
   // TODO: we need to ensure there will always be at least 2 data points
@@ -213,6 +213,26 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
 
   // Give the path object a limited non-clipping area
   circles.attr("clip-path", "url(#tsne-chart-clip-path)");
+
+  // ----------> Add Labels <----------
+  svg.append('text')
+    .attr('x', (width / 2))
+    .attr('y', height - margin.top)
+    .attr('font-size', '12px')
+    .attr('font-weight', 'bold')
+    .text("t-SNE Dimension 1");
+
+  // Preprocess positions ahead of time, helps to rotate it about its own center
+  const xPos = 12;
+  const yPos = (height / 2);
+  const rotationText = 'rotate(-90, ' + xPos + ', ' + yPos + ')'
+  svg.append('text')
+    .attr('x', xPos)
+    .attr('y', yPos)
+    .attr('transform', rotationText)
+    .attr('font-size', '12px')
+    .attr('font-weight', 'bold')
+    .text("t-SNE Dimension 2");
 }
 
 function cleanTSNEData(rawData: any[]): TSNEPoint[] {
