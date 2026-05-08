@@ -40,7 +40,7 @@ export function ArticleTab() {
       })
       .catch(err => {
         console.error(err);
-         setArticleContent(["", "Error loading content for this aricle"]);
+        setArticleContent(["", "Error loading content for this aricle"]);
       });
   }
 
