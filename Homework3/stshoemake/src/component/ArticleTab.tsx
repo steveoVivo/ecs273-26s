@@ -1,16 +1,11 @@
 import * as d3 from "d3";
 import { useEffect, useRef, useState } from "react";
-import { isEmpty, debounce } from 'lodash';
+import { isEmpty } from 'lodash';
 
-import { Margin } from '../types';
 import Filenames from '../../data/stocknews/filenames.json'
 
 const dataLocation = "../../data/stocknews";
 
-
-const margin = { left: 40, right: 20, top: 20, bottom: 60 } as Margin;
-  
-// TODO: Control + f "bar" and replace it with "line"
 export function ArticleTab() {
 
   // ----------> Instance Variables <----------
@@ -34,22 +29,22 @@ export function ArticleTab() {
     const ticker = categorySelect.property('value');
     const articleTitle = filenameDict[ticker][articleIndex];
 
-    // TODO: I think maybe something is causing this to forever loop when you pick an article - double check it
     d3.text(dataLocation + '/' + ticker + '/' + articleTitle)
       .then((text: string) => {
         let textArray: string[] = text.split(/\n+/);
+        const headerData = textArray.slice(0, 3);
         textArray = textArray.slice(3);
-        textArray = textArray.filter((paragraph: string) => paragraph != "Oops, something went wrong")
+        textArray = textArray.filter((paragraph: string) => paragraph != "Oops, something went wrong");
+        textArray.unshift(findDate(headerData));
         setArticleContent(textArray);
       })
       .catch(err => {
         console.error(err);
-         setArticleContent(["Error loading content for this aricle"]);
+         setArticleContent(["", "Error loading content for this aricle"]);
       });
   }
 
   useEffect(() => {
-    // TODO: Handle when there is no news (As there is for MMM)
     // NOTE: This should always be called after mount, but it'll completely break if this is the case
     if (!containerRef.current) return;
 
@@ -70,28 +65,10 @@ export function ArticleTab() {
         setArticleContent([]);
       });
 
-
-
-    // TODO: You actually might not need this anymore
-    // ----------> Draw: Every Page Resize <----------
-    const resizeObserver = new ResizeObserver(
-      debounce((entries: ResizeObserverEntry[]) => {
-        for (const entry of entries) {
-          // TODO: This line is pointless, delete it if you bring back the observer
-          continue;
-          // if (entry.target !== containerRef.current) continue;
-          // const { width, height } = entry.contentRect as ComponentSize;
-          // if (width && height && !isEmpty(currentData)) {
-            // drawChart(svgRef.current!, currentData, width, height);
-          // }
-        }
-      }, 100)
-    );
-
-    // resizeObserver.observe(containerRef.current);
-
-    return () => resizeObserver.disconnect();
+    return;
   }, []);
+
+  
 
   /* --- No Existing Articles View --- */
   if (isEmpty(titles)) {
@@ -121,7 +98,8 @@ export function ArticleTab() {
             onClick={_ => {setArticleIndex(-1); setArticleContent([])}}> 
             {cleanTitle(titles[articleIndex])}
           </div>
-          {articleContent.map((text, index) => (
+            <div className="p-1 font-bold" key={-1}> {articleContent[0]} </div>
+          {articleContent.slice(1).map((text, index) => (
             <div className="p-1" key={index}> {text} </div>
           ))}
         </div>
@@ -134,4 +112,11 @@ function cleanTitle(title: string): string {
   return title
     .replace(/^[\d_\- ]+/, "") // Replace date / whitespace at string start
     .replace(/\.txt$/, ""); // Replace stock extension at string end
+}
+
+function findDate(headers: string[]): string {
+  const dateHeader = headers.find(header => header.startsWith('Date'))
+  return dateHeader
+    ? dateHeader
+    : '(Article is undated)'
 }

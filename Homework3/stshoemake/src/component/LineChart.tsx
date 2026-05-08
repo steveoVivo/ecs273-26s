@@ -17,7 +17,6 @@ type ColorValue = {
 
 const margin = { left: 45, right: 20, top: 20, bottom: 40 } as Margin;
   
-// TODO: Control + f "bar" and replace it with "line"
 export function LineChart() {
   let currentData: TickerPoint[] = []
 
@@ -39,12 +38,12 @@ export function LineChart() {
       // We assert at the start of the useEffect that there is a value in current
       const { width, height } = (containerRef.current!).getBoundingClientRect();
       if (width && height) {
-        console.log(`Height (initial draw): ${height}`);
         drawChart(svgRef.current!, currentData, width, height);
       }
     }).catch(error => {
       console.error("Error: ", error);
     });
+
 
 
     // ----------> Draw: When Selection Changes <----------
@@ -58,11 +57,11 @@ export function LineChart() {
           // We assert at the start of the useEffect that there is a value in current
           const { width, height } = (containerRef.current!).getBoundingClientRect();
           if (width && height) {
-            console.log(`Height (selection draw): ${height}`);
             drawChart(svgRef.current!, currentData, width, height);
           }
         });
       });
+
 
 
     // ----------> Draw: Every Page Resize <----------
@@ -72,7 +71,6 @@ export function LineChart() {
           if (entry.target !== containerRef.current) continue;
           const { width, height } = entry.contentRect as ComponentSize;
           if (width && height && !isEmpty(currentData)) {
-            console.log(`Height (resize draw): ${height}`);
             drawChart(svgRef.current!, currentData, width, height);
           }
         }
@@ -84,7 +82,6 @@ export function LineChart() {
     return () => resizeObserver.disconnect();
   }, []);
 
-  // TODO: Eventually it would be good not to hardcode this, thought not necessary
   const colorData: ColorValue[] = tickerFieldList.map((tickerKey: TickerField) => {
     return {
       value: tickerKey,
@@ -93,22 +90,31 @@ export function LineChart() {
   });
 
   return (
-    <div className="flex w-full h-full">
-      <div className="flex-1 h-full" ref={containerRef}>
-        <svg id="bar-svg" ref={svgRef} width="100%" height="100%"></svg>
-      </div>
-      <div className="w-[150px] flex-none p-4 h-35">
-        <div className="grid auto-rows-fr h-full border bg-slate-100">
-          <div className="border font-bold text-center">Legend</div>
-          {
-          colorData.map((data, index) => (
-            <div className="flex items-center" key={index}>
-              <div className="h-[50%] w-[20px] m-[2px] border" style={{ backgroundColor: data.color}}></div>
-              <div className="h-full mb-[5px]"> {data.value} </div>
-            </div>
-          ))
-          }
+    <div className="flex flex-col h-full">
+      {/* --- Chart and Legend --- */}
+      <div className="flex-grow flex h-full w-full">
+        {/* --- Chart --- */}
+        <div className="flex-1 h-full" ref={containerRef}>
+          <svg id="line-svg" ref={svgRef} width="100%" height="100%"></svg>
         </div>
+        {/* --- Legend --- */}
+        <div className="w-[150px] flex-none p-4 h-35">
+          <div className="grid auto-rows-fr h-full border bg-slate-100">
+            <div className="border font-bold text-center">Legend</div>
+            {
+            colorData.map((data, index) => (
+              <div className="flex items-center" key={index}>
+                <div className="h-[50%] w-[20px] m-[2px] border" style={{ backgroundColor: data.color}}></div>
+                <div className="h-full mb-[5px]"> {data.value} </div>
+              </div>
+            ))
+            }
+          </div>
+        </div>
+      </div>
+      {/* --- Instruction Text below --- */}
+      <div className="flex-none text-center p-2">
+        Zoom in/out with the scroll wheel, pan (horizontally) with the cursor
       </div>
     </div>
   );
@@ -118,13 +124,13 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
   const svg = d3.select(svgElement);
   svg.selectAll('*').remove(); // clear previous render
 
-  // TODO: Error handle better with tis guy
+  // At least two points are needed to form the extents
   if(points.length < 2) {
+    console.error("Unable to draw LineChart: Data contains less than two points");
     return;
   }
 
   // ----------> Add Scale Graphics <----------
-  // TODO: we need to ensure there will always be at least 2 data points
   // X-Scale
   const xExtents = d3.extent(points.map(point => point.date)) as [Date, Date];
   const xScale = d3.scaleTime()
@@ -254,7 +260,6 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
 }
 
 function cleanTickerData(rawData: any[]): TickerPoint[] {
-  // TODO: Consider adding a try/catch for invalid dates or data
   return rawData.map((tickerData: any) => {
     return {
       date: new Date(tickerData['Date']),

@@ -20,7 +20,6 @@ const dataLocation = "../../data/tsne.csv";
 
 const margin = { left: 40, right: 20, top: 20, bottom: 60 } as Margin;
   
-// TODO: Control + f "bar" and replace it with "line"
 export function TSneChart() {
   let currentData: TSNEPoint[] = [];
 
@@ -65,14 +64,17 @@ export function TSneChart() {
 
   return (
     <div className="flex w-full h-full" style={{ width: '100%', height: '100%' }}>
+      {/* --- Plot --- */}
       <div className="flex-1 h-full" ref={containerRef}>
         <svg id="tsne-svg" ref={svgRef} width="100%" height="100%"></svg>
       </div>
       <div className="w-[250px] p-4 flex flex-col h-full">
+        {/* --- Selected Point Indicator --- */}
         <div id="tsne-select" className="h-1/4"> 
           <div className="font-bold"> {unselectedDataText} </div>
           <div> </div>
         </div>
+        {/* --- Legend --- */}
         <div className="grid auto-rows-fr h-5/8 border mb-[20px] bg-slate-100">
           <div className="border font-bold text-center">Legend</div>
           {
@@ -94,13 +96,13 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
   const svg = d3.select(svgElement);
   svg.selectAll('*').remove(); // clear previous render
 
-  // TODO: Error handle better with tis guy
+  // At least two points are needed to form the extents
   if(points.length < 2) {
+    console.error("Unable to draw TsNE: Data contains less than two points");
     return;
   }
 
   // ----------> Calculate X-Values <----------
-  // TODO: we need to ensure there will always be at least 2 data points
   const xExtents = d3.extent(points.map(point => point.posX)) as [number, number];
   // Make it so that points aren't scratching the left and right edges of the image
   const xExtentsWide = xExtents.map(extent => extent * 1.1);
@@ -116,8 +118,7 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
     .domain(yExtentsWide)
     .range([height - margin.bottom, margin.top])
 
-  // TODO: You might be doubling up on the margin considerations here
-  // xAxis Scaling
+  // ----------> Calculate Scales <----------
   const xAxis = svg.append('g')
     .attr('transform', `translate(0, ${height - margin.bottom})`)
     .call(d3.axisBottom(xScale))
@@ -140,41 +141,6 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
       .style('fill', p => getColorFromLabel(p.label));
 
 
-
-  // ----------> Add Hover Response Functionality <----------
-  // The factor by which to increase/decrease radii when hovered
-  // TODO: You'll need to get the zoom if you want to do this with a transition animation
-  const scaleFactor = 2;
-  circles.on('mouseover', (event, point: TSNEPoint) => {
-    const circle = d3.select(event.currentTarget);
-    const currentRadius = Number(circle.node().getAttribute('r'));
-    circle
-      .attr('r', currentRadius * scaleFactor)
-
-    d3.select("#tsne-select :nth-child(1)")
-      .text(selectedDataText)
-      .style('color', getColorFromLabel(point.label));
-
-    d3.select("#tsne-select :nth-child(2)")
-      .text(point.ticker);
-  });
-
-  circles.on('mouseleave', (event) => {
-    const circle = d3.select(event.currentTarget);
-    const currentRadius = Number(circle.node().getAttribute('r'));
-    circle
-      .attr('r', currentRadius / scaleFactor)
-
-    d3.select("#tsne-select :nth-child(1)")
-      .text(unselectedDataText)
-      .style('color', 'black');
-
-    d3.select("#tsne-select :nth-child(2)")
-      .text('');
-  });
-
-
-
   // ----------> Add Zoom Functionality <----------
   const zoomFunction = (event: any) => {
     // Redraw scales
@@ -189,12 +155,51 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
   }
 
   // There's not a lot of data close up, so keep the scale at 3x max
-  const zoomAction: any = d3.zoom()
+  const zoomAction = d3.zoom()
     .scaleExtent([1, 3])
     .translateExtent([[0, 0], [width, height]]) 
     .on("zoom", zoomFunction);
 
-  svg.call(zoomAction);
+  svg.call(zoomAction as any);
+
+
+
+
+  // ----------> Add Hover Response Functionality <----------
+  // The factor by which to increase/decrease radii when hovered
+  const scaleFactor = 2;
+  // `Mousemove` over `mouseenter` so that it stays enlarged after zoomed
+  circles.on('mousemove', (event, point: TSNEPoint) => {
+    const circle = d3.select(event.currentTarget);
+    // const currentRadius = Number(circle.node().getAttribute('r')); // Old radius, could cause problems when downscaling a zoomed in value
+    const currentRadius = d3.zoomTransform(svg.node()!).k * radius;
+
+    circle
+      .attr('r', currentRadius * scaleFactor)
+
+    d3.select("#tsne-select :nth-child(1)")
+      .text(selectedDataText)
+      .style('color', getColorFromLabel(point.label));
+
+    d3.select("#tsne-select :nth-child(2)")
+      .text(point.ticker);
+  });
+
+  circles.on('mouseleave', (event) => {
+    const circle = d3.select(event.currentTarget);
+    // const currentRadius = Number(circle.node().getAttribute('r')); // Old radius, could cause problems when downscaling a zoomed in value
+    const currentRadius = d3.zoomTransform(svg.node()!).k * radius;
+
+    circle
+      .attr('r', currentRadius)
+
+    d3.select("#tsne-select :nth-child(1)")
+      .text(unselectedDataText)
+      .style('color', 'black');
+
+    d3.select("#tsne-select :nth-child(2)")
+      .text('');
+  });
 
 
 
@@ -236,7 +241,6 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
 }
 
 function cleanTSNEData(rawData: any[]): TSNEPoint[] {
-  // TODO: Consider adding a try/catch for invalid dates or data
   return rawData.map((tsneData: any) => {
     return {
       posX: Number(tsneData['X']),

@@ -20,13 +20,13 @@ export default function App() {
       <div className="flex flex-row h-full w-full">
         <div className="flex flex-col w-2/3">
 
-          <div className="h-1/4 p-2">
+          <div className="h-3/8 p-4">
             <h3 className="text-left text-xl">2-Year Line Chart</h3>
-            <div className="border-2 border-gray-300 rounded-xl">
+            <div className="h-full border-2 border-gray-300 rounded-xl">
               <LineChart />
             </div>
           </div>
-          <div className="h-3/4 p-2">
+          <div className="h-5/8 p-4">
             <h3 className="text-left text-xl h-[2rem]">t-SNE Plot</h3>
             <div className="border-2 border-gray-300 rounded-xl h-[calc(100%_-_2rem)]">
               <TSneChart />
@@ -34,7 +34,7 @@ export default function App() {
           </div>
           
         </div>
-        <div className="w-1/3 h-full p-2">
+        <div className="w-1/3 h-full p-3">
             <h3 className="text-left text-xl h-[2rem]">Relevant News Articles</h3>
             <div className="border-2 border-gray-300 rounded-xl h-[calc(100%_-_2rem)]">
               <ArticleTab />
