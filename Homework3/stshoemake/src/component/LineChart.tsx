@@ -29,6 +29,7 @@ export function LineChart() {
 
     const categorySelect = d3.select('#bar-select');
 
+
     // ----------> Draw: Initial Draw <----------
     const initialSelected = categorySelect.property('value');
     const fileLocation = dataLocation + "/" + initialSelected + ".csv";
@@ -130,6 +131,7 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
     return;
   }
 
+
   // ----------> Add Scale Graphics <----------
   // X-Scale
   const xExtents = d3.extent(points.map(point => point.date)) as [Date, Date];
@@ -151,6 +153,8 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
     ...points.map(point => point.close)
   ) * 0.9;
 
+
+
   // ----------> Calculate Scales <----------
   // Add an extra 10% to the top and bottom of the chart, so the highest point isn't scraping the ceiling and the lowest isn't 0
   const yScale = d3.scaleLinear()
@@ -171,22 +175,17 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
     .y(p => yScale(p.value));
 
 
-
   // ----------> Create Path Elements <----------
-  const tickerPointKeys: string[] = Object.keys(points[0]);
   const paths: d3.Selection<SVGPathElement, DataPoint[], null, undefined>[] = [];
-  tickerPointKeys.forEach((key: string) => {
-    // It's bad form to reference it like this but that's okay for this assignment
-    if (key == 'date') return;
+  tickerFieldList.forEach((key: TickerField) => {
     const dataPoints: DataPoint[] = points.map((point: TickerPoint) => {
       return {
-        date: point['date'],
-        // We know for sure that this will work, but it's a hacky fix
-        value: point[key as keyof TickerPoint] as number
+        date: point.date,
+        value: point[key] as number
       }
     });
 
-    const color = getColorFromColumn(key as keyof TickerPoint);
+    const color = getColorFromColumn(key);
     const path = svg.append("path")
       .datum(dataPoints)
       .attr("fill", "none")
@@ -238,6 +237,7 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
   });
 
 
+  
   // ----------> Add Labels <----------
   svg.append('text')
     .attr('x', (width / 2))

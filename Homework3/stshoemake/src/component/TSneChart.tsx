@@ -30,6 +30,7 @@ export function TSneChart() {
     // NOTE: This should always be called after mount, but it'll completely break if this is the case
     if (!containerRef.current || !svgRef.current) return;
 
+
     // ----------> Draw: Initial Draw <----------
     d3.csv(dataLocation).then((data: any[]) => {
       currentData = cleanTSNEData(data);
@@ -43,6 +44,7 @@ export function TSneChart() {
       console.error("Error: ", error);
     });
     
+
 
     // ----------> Draw: Every Page Resize <----------
     const resizeObserver = new ResizeObserver(
@@ -102,7 +104,9 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
     return;
   }
 
-  // ----------> Calculate X-Values <----------
+
+  // ----------> Add Scale Graphics <----------
+  // X-Scales
   const xExtents = d3.extent(points.map(point => point.posX)) as [number, number];
   // Make it so that points aren't scratching the left and right edges of the image
   const xExtentsWide = xExtents.map(extent => extent * 1.1);
@@ -110,7 +114,7 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
     .domain(xExtentsWide)
     .rangeRound([margin.left, width - margin.right])
 
-  // ----------> Calculate Y-Values <----------
+  // Y-Scales
   const yExtents = d3.extent(points.map(point => point.posY)) as [number, number];
   // Make it so that points aren't scratching the top and bottom edges of the image
   const yExtentsWide = yExtents.map(extent => extent * 1.1);
@@ -118,7 +122,11 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
     .domain(yExtentsWide)
     .range([height - margin.bottom, margin.top])
 
+
+
+
   // ----------> Calculate Scales <----------
+  // xAxis Scaling
   const xAxis = svg.append('g')
     .attr('transform', `translate(0, ${height - margin.bottom})`)
     .call(d3.axisBottom(xScale))
@@ -139,6 +147,7 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
       .attr('cy', p => yScale(p.posY))
       .attr('r', radius)
       .style('fill', p => getColorFromLabel(p.label));
+
 
 
   // ----------> Add Zoom Functionality <----------
@@ -168,7 +177,7 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
   // ----------> Add Hover Response Functionality <----------
   // The factor by which to increase/decrease radii when hovered
   const scaleFactor = 2;
-  // `Mousemove` over `mouseenter` so that it stays enlarged after zoomed
+  // `mousemove` over `mouseenter` so that it stays enlarged after zoomed
   circles.on('mousemove', (event, point: TSNEPoint) => {
     const circle = d3.select(event.currentTarget);
     // const currentRadius = Number(circle.node().getAttribute('r')); // Old radius, could cause problems when downscaling a zoomed in value
@@ -223,6 +232,8 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
   // Give the path object a limited non-clipping area
   circles.attr("clip-path", "url(#tsne-chart-clip-path)");
 
+
+  
   // ----------> Add Labels <----------
   svg.append('text')
     .attr('x', (width / 2))

@@ -17,7 +17,7 @@ export function ArticleTab() {
   const [articleIndex, setArticleIndex] = useState<number>(-1);
   const [articleContent, setArticleContent] = useState<string[]>([]);
 
-  // Easier to work with if I type it like this
+  // Easier to work with typing it like this
   const filenameDict: Record<string, string[]> = Filenames as Record<string, string[]>;
 
 
@@ -53,7 +53,6 @@ export function ArticleTab() {
     // ----------> Handle: Changing Selected ticker <----------
     // Get initial ticker
     const initialSelected = categorySelect.property('value');
-    // const initialSelected = 'XOM';
     setTitles(filenameDict[initialSelected] ?? []);
 
     // Get ticker when changed
