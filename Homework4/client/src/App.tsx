@@ -5,9 +5,13 @@ export default function App() {
   const [stockList, setStockList] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:8000/stock_list')
+    fetch('/api/stock_list')
       .then(res => res.json())
-      .then(data => setStockList(data.tickers));
+      .then(data => console.log(data))// setStockList(data.tickers))
+      .catch(err => {
+        console.log('Following Error: ');
+        console.log(err);
+      });
   }, []);
   
   return (

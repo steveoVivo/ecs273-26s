@@ -8,8 +8,8 @@ from data_scheme import StockListModel, StockModelV1, StockModelV2, StockNewsMod
 
 # MongoDB connection (localhost, default port)
 client = AsyncIOMotorClient("mongodb://localhost:27017")
-db = client.stock_madhu # please replace the database name with stock_[your name] to avoid collision at TA's side
-            
+db = client.stock_steven_shoes
+
 app = FastAPI(
     title="Stock tracking API",
     summary="An aplication tracking stock prices and respective news"
@@ -24,7 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/stock_list", 
+@app.get("/api/stock_list", 
          response_model=StockListModel
     )
 async def get_stock_list():
