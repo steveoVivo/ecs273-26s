@@ -96,7 +96,7 @@ async def get_stock(stock_name: str = 'XOM') -> StockModelV2:
 @app.get("/tsne", response_model=list[tsneDataModel])
 async def get_tsne_single() -> list[tsneDataModel]:
     """
-    Get the t-SNE data for a specific stock
+    Get the t-SNE data for all stocks
     """
     tsne_collection = db.get_collection("tsne")
 

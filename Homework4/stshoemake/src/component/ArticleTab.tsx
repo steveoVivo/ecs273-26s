@@ -10,7 +10,6 @@ export function ArticleTab() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
-  // TODO: Test that the right message shows up when this is actually empty, but AFTER you fix updating import data
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
 

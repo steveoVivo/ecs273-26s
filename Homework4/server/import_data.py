@@ -7,7 +7,6 @@ import asyncio
 client = AsyncIOMotorClient("mongodb://localhost:27017")
 db = client.stock_steven_shoes
 
-# TODO: Go over everything and error handle in the event that you fail to find a file
 # TODO: Do you really need an 'await' in front of every insert?
 
 tickers = [ 'XOM', 'CVX', 'HAL',
@@ -38,25 +37,29 @@ async def import_prices_to_mongodb():
     await stock_price_collection.delete_many({})
 
     for ticker in tickers:
-        price_dataframe = pd.read_csv('./data/stockdata/' + ticker + '.csv')
-        price_dicts = price_dataframe.to_dict(orient='records')
-        stock_list = []
-        for dict in price_dicts:
-            stock_unit = {
-                "date": dict['Date'],
-                "Open": dict['Open'],
-                "High": dict['High'],
-                "Low": dict['Low'],
-                "Close": dict['Close']
+        try:
+            price_dataframe = pd.read_csv('./data/stockdata/' + ticker + '.csv')
+            price_dicts = price_dataframe.to_dict(orient='records')
+            stock_list = []
+            for dict in price_dicts:
+                stock_unit = {
+                    "date": dict['Date'],
+                    "Open": dict['Open'],
+                    "High": dict['High'],
+                    "Low": dict['Low'],
+                    "Close": dict['Close']
+                }
+                stock_list.append(stock_unit)
+
+            stock_model = {
+                "name": ticker,
+                "stock_series": stock_list
             }
-            stock_list.append(stock_unit)
 
-        stock_model = {
-            "name": ticker,
-            "stock_series": stock_list
-        }
-
-        await stock_price_collection.insert_one(stock_model)
+            await stock_price_collection.insert_one(stock_model)
+        except Exception as e:
+            print(f"WARNING: {e}")
+            print(f"    Unable to retrieve data for ticker {ticker}")
 
 
 stock_news_collection = db.get_collection("stock_news")
@@ -65,40 +68,40 @@ stock_news_collection = db.get_collection("stock_news")
 async def import_news_to_mongodb():
     await stock_news_collection.delete_many({})
 
-    # TODO:  I couldn't think of anywhere else to put this, but you failed to have any stocknews for MMM
-    # For this, price, and whatever else - you need to return an empty array when this happens/
-    # TODO: When you're done and wanna test, delete the dummy data you added to stocknews
-
     stocknews_path = './data/stocknews/'
     # Loop through all subfolders
     for ticker in tickers:
         tickernews_path = stocknews_path + ticker + '/'
         # Loop through all files in a subfolder
-        for file_name in os.listdir(tickernews_path):
-            if file_name.endswith('.txt'):
-                with open(tickernews_path + file_name, 'r') as file:
-                    # TODO: Error handle in case the 'Title' and 'Date' openers aren't here (IE, it's an invalid file)
-                    # Remove 'Title: ' and 'Date: ' openers and trailing newline character
-                    title = file.readline()
-                    title_formatted = title[7:-1]
-                    date = file.readline()
-                    date_formatted = date[6:-1]
+        try:
+            for file_name in os.listdir(tickernews_path):
+                if file_name.endswith('.txt'):
+                    with open(tickernews_path + file_name, 'r') as file:
+                        # TODO: Error handle in case the 'Title' and 'Date' openers aren't here (IE, it's an invalid file)
+                        # Remove 'Title: ' and 'Date: ' openers and trailing newline character
+                        title = file.readline()
+                        title_formatted = title[7:-1]
+                        date = file.readline()
+                        date_formatted = date[6:-1]
 
-                    # Skip past URL and empty line
-                    file.readline()
-                    file.readline()
+                        # Skip past URL and empty line
+                        file.readline()
+                        file.readline()
 
-                    # Read in the rest of the file as the body content
-                    content_formatted = file.read()
+                        # Read in the rest of the file as the body content
+                        content_formatted = file.read()
 
-                    stocknews = {
-                        "Stock": ticker,
-                        "Title": title_formatted,
-                        "Date": date_formatted,
-                        "content": content_formatted
-                    }
+                        stocknews = {
+                            "Stock": ticker,
+                            "Title": title_formatted,
+                            "Date": date_formatted,
+                            "content": content_formatted
+                        }
 
-                    await stock_news_collection.insert_one(stocknews)
+                        await stock_news_collection.insert_one(stocknews)
+        except Exception as _:
+            print(f"WARNING: unable to find news data at {tickernews_path}")
+            print(f"    News data was not added to the database for ticker {ticker}")
 
 
 tsne_collection = db.get_collection("tsne")
@@ -107,16 +110,20 @@ tsne_collection = db.get_collection("tsne")
 async def import_tsne_to_mongodb():
     await tsne_collection.delete_many({})
 
-    tsne_dataframe = pd.read_csv('./data/tsne.csv')
-    tsne_dicts = tsne_dataframe.to_dict(orient='records')
-    for dict in tsne_dicts:
-        tsne_data = {
-            "Stock": dict["Ticker"],
-            "x": dict["X"],
-            "y": dict["Y"]
-        }
-        
-        await tsne_collection.insert_one(tsne_data)
+    try:
+        tsne_dataframe = pd.read_csv('./data/tsne.csv')
+        tsne_dicts = tsne_dataframe.to_dict(orient='records')
+        for dict in tsne_dicts:
+            tsne_data = {
+                "Stock": dict["Ticker"],
+                "x": dict["X"],
+                "y": dict["Y"]
+            }
+            
+            await tsne_collection.insert_one(tsne_data)
+    except Exception as _:
+        print(f"WARNING: unable to find tsne data at `./data/tsne.csv`")
+        print(f"    TSNE chart will not display")
 
 
 
