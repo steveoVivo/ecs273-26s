@@ -22,28 +22,49 @@ stock_name_collection = db.get_collection("stock_list")
 # - - - Function - - - #
 # Store a list of tickers
 async def import_tickers_to_mongodb():
+    await stock_name_collection.delete_many({})
+
     # Insert the tickers into the collection
     await stock_name_collection.insert_one({
         "tickers": tickers
     })
 
+
 stock_price_collection = db.get_collection("stock_price")
 # - - - Function - - - #
 # Store a history of stock price data
-# NOTE: Using StockModelV1
+# NOTE: Using StockModelV2
 async def import_prices_to_mongodb():
+    await stock_price_collection.delete_many({})
+
     for ticker in tickers:
         price_dataframe = pd.read_csv('./data/stockdata/' + ticker + '.csv')
         price_dicts = price_dataframe.to_dict(orient='records')
+        stock_list = []
         for dict in price_dicts:
-            dict['name'] = ticker
+            stock_unit = {
+                "date": dict['Date'],
+                "Open": dict['Open'],
+                "High": dict['High'],
+                "Low": dict['Low'],
+                "Close": dict['Close']
+            }
+            stock_list.append(stock_unit)
 
-        await stock_price_collection.insert_many(price_dicts)
+        stock_model = {
+            "name": ticker,
+            "stock_series": stock_list
+        }
+
+        await stock_price_collection.insert_one(stock_model)
+
 
 stock_news_collection = db.get_collection("stock_news")
 # - - - Function - - - #
 # Store all stock news articles
 async def import_news_to_mongodb():
+    await stock_news_collection.delete_many({})
+
     stocknews_path = './data/stocknews/'
     # Loop through all subfolders
     for ticker in tickers:
@@ -64,20 +85,24 @@ async def import_news_to_mongodb():
                     file.readline()
 
                     # Read in the rest of the file as the body content
-                    content = file.read()
+                    content_formatted = file.read()
+
                     stocknews = {
                         "Stock": ticker,
                         "Title": title_formatted,
                         "Date": date_formatted,
-                        "content": content
+                        "content": content_formatted
                     }
 
                     await stock_news_collection.insert_one(stocknews)
+
 
 tsne_collection = db.get_collection("tsne")
 # - - - Function - - - #
 # Store tsne data
 async def import_tsne_to_mongodb():
+    await tsne_collection.delete_many({})
+
     tsne_dataframe = pd.read_csv('./data/tsne.csv')
     tsne_dicts = tsne_dataframe.to_dict(orient='records')
     for dict in tsne_dicts:
@@ -88,6 +113,8 @@ async def import_tsne_to_mongodb():
         }
         
         await tsne_collection.insert_one(tsne_data)
+
+
 
 # - - - Main Function - - - #
 # Import all data. Do this concurrently (gather) rather than in series (two awaits) to save time
