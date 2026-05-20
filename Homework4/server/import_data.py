@@ -7,8 +7,6 @@ import asyncio
 client = AsyncIOMotorClient("mongodb://localhost:27017")
 db = client.stock_steven_shoes
 
-# TODO: Do you really need an 'await' in front of every insert?
-
 tickers = [ 'XOM', 'CVX', 'HAL',
             'MMM', 'CAT', 'DAL',
             'MCD', 'NKE', 'KO',
@@ -77,11 +75,15 @@ async def import_news_to_mongodb():
             for file_name in os.listdir(tickernews_path):
                 if file_name.endswith('.txt'):
                     with open(tickernews_path + file_name, 'r') as file:
-                        # TODO: Error handle in case the 'Title' and 'Date' openers aren't here (IE, it's an invalid file)
-                        # Remove 'Title: ' and 'Date: ' openers and trailing newline character
+                        # Grab the title and date, and use them to double-check the file is formatted correctly
                         title = file.readline()
-                        title_formatted = title[7:-1]
                         date = file.readline()
+
+                        if ((not title.startswith("Title: ")) or (not date.startswith("Date: "))):
+                            print(f"WARNING: not adding following article for improper formatting: {file_name}")
+                            continue
+
+                        title_formatted = title[7:-1]
                         date_formatted = date[6:-1]
 
                         # Skip past URL and empty line

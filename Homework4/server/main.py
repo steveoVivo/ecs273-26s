@@ -10,8 +10,6 @@ from data_scheme import StockListModel, StockModelV1, StockModelV2, StockNewsMod
 client = AsyncIOMotorClient("mongodb://localhost:27017")
 db = client.stock_steven_shoes
 
-# TODO: Same as with import_data - what does await do here?
-
 app = FastAPI(
     title="Stock tracking API",
     summary="An aplication tracking stock prices and respective news"
