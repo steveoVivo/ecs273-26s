@@ -17,3 +17,6 @@ package-lock.json
 
 # ignore js files
 react-js-template/
+
+# Temporary Python files
+__pycache__/
