@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 import { isEmpty, debounce } from 'lodash';
 
-import { ComponentSize, Margin, Point } from '../types';
+import { ComponentSize, Margin, Point, Ticker, TIMEOUT_INTERVAL } from '../types';
 
 interface TSNEPoint extends Point {
   ticker: string,
@@ -16,8 +16,6 @@ type Labels = typeof labelList[number]
 const selectedDataText = "Currently Selected: "
 const unselectedDataText = "Nothing Selected";
 
-const dataLocation = "../../data/tsne.csv";
-
 const margin = { left: 40, right: 20, top: 20, bottom: 60 } as Margin;
   
 export function TSneChart() {
@@ -30,20 +28,26 @@ export function TSneChart() {
     // NOTE: This should always be called after mount, but it'll completely break if this is the case
     if (!containerRef.current || !svgRef.current) return;
 
+    let timeout: number;
+    const fetchData = () => {
+      fetch(`http://localhost:8000/tsne/`)
+        .then(res => res.json())
+        .then((data: any[]) => {
+          currentData = cleanTSNEData(data);
+
+          const { width, height } = (containerRef.current!).getBoundingClientRect();
+          if (width && height) {
+            drawPlot(svgRef.current!, currentData, width, height);
+          }
+        })
+        .catch(_ => {
+          console.log('Failed to fetch Linechart Data. Retrying in 2s...');
+          timeout = setTimeout(fetchData, TIMEOUT_INTERVAL / 2)
+        });
+    }
 
     // ----------> Draw: Initial Draw <----------
-    d3.csv(dataLocation).then((data: any[]) => {
-      currentData = cleanTSNEData(data);
-
-      // We assert at the start of the useEffect that there is a value in current
-      const { width, height } = (containerRef.current!).getBoundingClientRect();
-      if (width && height) {
-        drawPlot(svgRef.current!, currentData, width, height);
-      }
-    }).catch(error => {
-      console.error("Error: ", error);
-    });
-    
+    fetchData();
 
 
     // ----------> Draw: Every Page Resize <----------
@@ -61,7 +65,10 @@ export function TSneChart() {
 
     resizeObserver.observe(containerRef.current);
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      clearTimeout(timeout);
+      resizeObserver.disconnect();
+    }
   }, []);
 
   return (
@@ -257,11 +264,17 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
 
 function cleanTSNEData(rawData: any[]): TSNEPoint[] {
   return rawData.map((tsneData: any) => {
+    // Considerations for if data comes from a static file, or from a database
+    const x = tsneData['X'] ?? tsneData['x'];
+    const y = tsneData['Y'] ?? tsneData['y'];
+    const ticker = tsneData['Ticker'] ?? tsneData['Stock'];
+    const label = tsneData['Label'] ?? getIndustryFromTicker(ticker);
+
     return {
-      posX: Number(tsneData['X']),
-      posY: Number(tsneData['Y']),
-      ticker: tsneData['Ticker'],
-      label: tsneData['Label']
+      posX: Number(x),
+      posY: Number(y),
+      ticker: ticker,
+      label: label
     }
   });
 }
@@ -288,4 +301,39 @@ function getColorFromLabel(selectedCategory: Labels): string {
 
   // Equivalent to defaulting
   return 'black';
+}
+
+function getIndustryFromTicker(ticker: Ticker): Labels {
+  switch (ticker) {
+    case 'AAPL':
+    case 'GOOGL':
+    case 'META':
+    case 'MSFT':
+    case 'NVDA':
+      return 'Information_Technology'
+    case 'JPM':
+    case 'GS':
+    case 'BAC':
+      return 'Financials';
+    case 'MMM':
+    case 'CAT':
+    case 'DAL':
+      return 'Industrials';
+    case 'XOM':
+    case 'CVX':
+    case 'HAL':
+      return 'Energy';
+    case 'JNJ':
+    case 'PFE':
+    case 'UNH':
+      return 'Healthcare';
+    case 'KO':
+      return 'Consumer_Staples';
+    case 'MCD':
+    case 'NKE':
+      return 'Consumer_Discretionary';
+  }
+
+  // Equivalent to defaulting
+  return 'Consumer_Discretionary';
 }

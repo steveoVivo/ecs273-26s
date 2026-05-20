@@ -65,6 +65,10 @@ stock_news_collection = db.get_collection("stock_news")
 async def import_news_to_mongodb():
     await stock_news_collection.delete_many({})
 
+    # TODO:  I couldn't think of anywhere else to put this, but you failed to have any stocknews for MMM
+    # For this, price, and whatever else - you need to return an empty array when this happens/
+    # TODO: When you're done and wanna test, delete the dummy data you added to stocknews
+
     stocknews_path = './data/stocknews/'
     # Loop through all subfolders
     for ticker in tickers:

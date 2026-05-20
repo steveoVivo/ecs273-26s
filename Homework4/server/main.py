@@ -78,9 +78,24 @@ async def get_stock(stock_name: str = 'XOM') -> StockModelV2:
     return stock_model
 
 
-@app.get("/tsne", response_model=tsneDataModel)
+@app.get("/tsne", response_model=list[tsneDataModel])
+async def get_tsne_single(stock_name: str = 'XOM') -> list[tsneDataModel]:
+    """
+    Get the t-SNE data for a specific stock
+    """
+    tsne_collection = db.get_collection("tsne")
+
+    cursor = tsne_collection.find({})
+
+    # Same as doing cursor.toList, without specifying length
+    tsne_list = []
+    async for record in cursor:
+        tsne_list.append(record)
+
+    return tsne_list
+
 @app.get("/tsne/{stock_name}", response_model=tsneDataModel)
-async def get_tsne(stock_name: str = 'XOM') -> tsneDataModel:
+async def get_tsne_single(stock_name: str = 'XOM') -> tsneDataModel:
     """
     Get the t-SNE data for a specific stock
     """

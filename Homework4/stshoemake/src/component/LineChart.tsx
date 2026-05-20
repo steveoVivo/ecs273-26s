@@ -1,10 +1,8 @@
 import * as d3 from "d3";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isEmpty, debounce } from 'lodash';
 
-import { Bar, ComponentSize, Margin, TickerPoint, tickerFieldList, TickerField } from '../types';
-
-const dataLocation = "../../data/stockdata";
+import { Bar, ComponentSize, Margin, TickerPoint, tickerFieldList, TickerField, TIMEOUT_INTERVAL } from '../types';
 
 interface DataPoint extends Bar {
   date: Date;
@@ -16,6 +14,7 @@ type ColorValue = {
 }
 
 const margin = { left: 45, right: 20, top: 20, bottom: 40 } as Margin;
+
   
 export function LineChart() {
   let currentData: TickerPoint[] = []
@@ -23,46 +22,52 @@ export function LineChart() {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  const [loading, setLoading] = useState(true);
+
+
   useEffect(() => {
     // NOTE: This should always be called after mount, but it'll completely break if this is the case
     if (!containerRef.current || !svgRef.current) return;
 
     const categorySelect = d3.select('#bar-select');
 
+    let timeout: number;
+    const fetchData = (ticker: string) => {
+      fetch(`http://localhost:8000/stock/${ticker}`)
+        .then(res => res.json())
+        .then(data => {
+          const stockData = data['stock_series'];
+          currentData = cleanTickerData(stockData);
+          setLoading(false);
+
+          const { width, height } = (containerRef.current!).getBoundingClientRect();
+          if (width && height) {
+            drawChart(svgRef.current!, currentData, width, height);
+          }
+        })
+        .catch(_ => {
+          console.log('Failed to fetch Linechart Data. Retrying in 4s...');
+          timeout = setTimeout(fetchData, TIMEOUT_INTERVAL)
+        });
+    }
+
 
     // ----------> Draw: Initial Draw <----------
     const initialSelected = categorySelect.property('value');
-    const fileLocation = dataLocation + "/" + initialSelected + ".csv";
-    d3.csv(fileLocation).then((data: any[]) => {
-      currentData = cleanTickerData(data);
-
-      // We assert at the start of the useEffect that there is a value in current
-      const { width, height } = (containerRef.current!).getBoundingClientRect();
-      if (width && height) {
-        drawChart(svgRef.current!, currentData, width, height);
-      }
-    }).catch(error => {
-      console.error("Error: ", error);
-    });
-
+    fetchData(initialSelected);
 
 
     // ----------> Draw: When Selection Changes <----------
     categorySelect
       .on('change.first', function(event) {
+        // Prevent data from getting set from previous loads
+        clearTimeout(timeout);
+        // Update the UI to reflect loading state
+        setLoading(true);
+        // Gather new data and update UI when recieved
         const ticker = event.target.value;
-        const fileLocation = dataLocation + "/" + ticker + ".csv";
-        d3.csv(fileLocation).then((data: any[]) => {
-          currentData = cleanTickerData(data);
-
-          // We assert at the start of the useEffect that there is a value in current
-          const { width, height } = (containerRef.current!).getBoundingClientRect();
-          if (width && height) {
-            drawChart(svgRef.current!, currentData, width, height);
-          }
-        });
+        fetchData(ticker)
       });
-
 
 
     // ----------> Draw: Every Page Resize <----------
@@ -80,7 +85,10 @@ export function LineChart() {
 
     resizeObserver.observe(containerRef.current);
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      clearTimeout(timeout);
+    }
   }, []);
 
   const colorData: ColorValue[] = tickerFieldList.map((tickerKey: TickerField) => {
@@ -92,8 +100,10 @@ export function LineChart() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* --- Loading Text ---*/}
+      <div className="flex-grow flex h-full w-full" style={{ display: loading ? 'flex' : 'none'}}> Loading... </div>
       {/* --- Chart and Legend --- */}
-      <div className="flex-grow flex h-full w-full">
+      <div className="flex-grow flex h-full w-full" style={{ visibility: loading ? 'hidden' : 'visible'}}>
         {/* --- Chart --- */}
         <div className="flex-1 h-full" ref={containerRef}>
           <svg id="line-svg" ref={svgRef} width="100%" height="100%"></svg>
@@ -261,8 +271,9 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
 
 function cleanTickerData(rawData: any[]): TickerPoint[] {
   return rawData.map((tickerData: any) => {
+    const date = tickerData['Date'] ?? tickerData['date'];
     return {
-      date: new Date(tickerData['Date']),
+      date: new Date(date),
       open: Number(tickerData['Open']),
       high: Number(tickerData['High']),
       low: Number(tickerData['Low']),

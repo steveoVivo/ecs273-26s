@@ -1,3 +1,6 @@
+// 4k ms or 4s
+export const TIMEOUT_INTERVAL = 4000;
+
 export interface Margin {
     readonly left: number;
     readonly right: number;
@@ -26,6 +29,12 @@ export interface TickerPoint {
   high: number;
   low: number;
   close: number;
+}
+
+export interface NewsArticle {
+    date: string;
+    title: string;
+    content: string;
 }
 
 export const tickerList = ["XOM","CVX","HAL","MMM","CAT","DAL","MCD","NKE","KO",
