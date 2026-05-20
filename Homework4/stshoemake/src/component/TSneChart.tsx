@@ -41,7 +41,7 @@ export function TSneChart() {
           }
         })
         .catch(_ => {
-          console.log('Failed to fetch Linechart Data. Retrying in 2s...');
+          console.log('Failed to fetch Linechart Data. Retrying in ~1s...');
           timeout = setTimeout(fetchData, TIMEOUT_INTERVAL / 2)
         });
     }

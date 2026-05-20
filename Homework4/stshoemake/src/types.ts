@@ -1,5 +1,5 @@
-// 4k ms or 4s
-export const TIMEOUT_INTERVAL = 4000;
+// 3k ms or 3s
+export const TIMEOUT_INTERVAL = 3000;
 
 export interface Margin {
     readonly left: number;

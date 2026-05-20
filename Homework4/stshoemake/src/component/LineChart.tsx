@@ -46,8 +46,8 @@ export function LineChart() {
           }
         })
         .catch(_ => {
-          console.log('Failed to fetch Linechart Data. Retrying in 4s...');
-          timeout = setTimeout(fetchData, TIMEOUT_INTERVAL)
+          console.log('Failed to fetch Linechart Data. Retrying in 3s...');
+          timeout = setTimeout(() => fetchData(ticker), TIMEOUT_INTERVAL)
         });
     }
 

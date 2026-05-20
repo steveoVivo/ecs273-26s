@@ -31,8 +31,8 @@ export function ArticleTab() {
           setLoading(false);
         })
         .catch(_ => {
-          console.log('Failed to fetch Article Data. Retrying in 4s...');
-          timeout = setTimeout(fetchData, TIMEOUT_INTERVAL)
+          console.log('Failed to fetch Article Data. Retrying in 3s...');
+          timeout = setTimeout(() => fetchData(ticker), TIMEOUT_INTERVAL)
         });
     }
 
