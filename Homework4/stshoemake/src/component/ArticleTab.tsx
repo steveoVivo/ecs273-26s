@@ -9,7 +9,6 @@ export function ArticleTab() {
   // Ref for outer HTML object
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // TODO: Compare with LineChart and make sure that loading is used/updated in all the right places
   const [loading, setLoading] = useState<boolean>(true);
   // TODO: Test that the right message shows up when this is actually empty, but AFTER you fix updating import data
   const [articles, setArticles] = useState<NewsArticle[]>([]);

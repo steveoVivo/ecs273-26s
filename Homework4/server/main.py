@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic.functional_validators import BeforeValidator
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -10,8 +10,7 @@ from data_scheme import StockListModel, StockModelV1, StockModelV2, StockNewsMod
 client = AsyncIOMotorClient("mongodb://localhost:27017")
 db = client.stock_steven_shoes
 
-# TODO: 'Handle invalid ticker symbols gracefully'
-#   IE, just get "stock_list" and find if the ticker is on it - return error if not
+# TODO: Same as with import_data - what does await do here?
 
 app = FastAPI(
     title="Stock tracking API",
@@ -46,6 +45,14 @@ async def get_stock_news(stock_name: str = 'XOM') -> StockNewsModelList:
     Get the list of news for a specific stock from the database
     The news is sorted by date in ascending order
     """
+    # Ensure stock_name is a valid ticker
+    stock_list = await get_stock_list()
+    tickers = stock_list['tickers']
+
+    if (not stock_name in tickers):
+        raise HTTPException(status_code=404, detail=f"{stock_name} is not a recognized ticker.")
+
+    # Retrieve news for stock
     stock_news_collection = db.get_collection("stock_news")
     filter = {"Stock": stock_name}
 
@@ -70,6 +77,14 @@ async def get_stock(stock_name: str = 'XOM') -> StockModelV2:
     Parameters:
     - stock_name: The name of the stock
     """
+    # Ensure stock_name is a valid ticker
+    stock_list = await get_stock_list()
+    tickers = stock_list['tickers']
+
+    if (not stock_name in tickers):
+        raise HTTPException(status_code=404, detail=f"{stock_name} is not a recognized ticker.")
+
+    # Retrieve trends for stock
     stock_price_collection = db.get_collection("stock_price")
     filter = {"name": stock_name}
 
@@ -79,7 +94,7 @@ async def get_stock(stock_name: str = 'XOM') -> StockModelV2:
 
 
 @app.get("/tsne", response_model=list[tsneDataModel])
-async def get_tsne_single(stock_name: str = 'XOM') -> list[tsneDataModel]:
+async def get_tsne_single() -> list[tsneDataModel]:
     """
     Get the t-SNE data for a specific stock
     """
@@ -99,6 +114,14 @@ async def get_tsne_single(stock_name: str = 'XOM') -> tsneDataModel:
     """
     Get the t-SNE data for a specific stock
     """
+    # Ensure stock_name is a valid ticker
+    stock_list = await get_stock_list()
+    tickers = stock_list['tickers']
+
+    if (not stock_name in tickers):
+        raise HTTPException(status_code=404, detail=f"{stock_name} is not a recognized ticker.")
+
+    # Retrieve tsne for stock
     tsne_collection = db.get_collection("tsne")
     filter = {"Stock": stock_name}
 

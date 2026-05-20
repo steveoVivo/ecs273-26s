@@ -5,7 +5,6 @@ import { ArticleTab } from "./component/ArticleTab"
 import RenderOptions from "./component/options";
 // A "extends" B means A inherits the properties and methods from B.
 
-// TODO: At a high level, make sure you ctrl + f "data" and make sure the data folder isn't used anywhere anymore
 export default function App() {
   return (
     <div className="flex flex-col h-full w-full">

@@ -13,7 +13,7 @@ export default function App() {
     //     console.log(err);
     //   });
 
-    fetch('http://localhost:8000/stocknews')
+    fetch('http://localhost:8000/stocknews/AAPL')
       .then(res => res.json())
       .then(data => console.log(data))
       .catch(err => {
