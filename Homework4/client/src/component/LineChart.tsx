@@ -200,7 +200,7 @@ function drawChart(svgElement: SVGSVGElement, points: TickerPoint[], width: numb
       .datum(dataPoints)
       .attr("fill", "none")
       .attr("stroke", color)
-      .attr("stroke-width", 0.25)
+      .attr("stroke-width", 0.75)
       .attr("d", dataLine)
 
     paths.push(path);
