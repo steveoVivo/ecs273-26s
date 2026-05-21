@@ -77,6 +77,11 @@ As with installing client dependencies, it requires npm.
 npm run dev
 ```
 
+### Viewing the App
+After all the prior steps, the application should be visible from the following web address:
+
+`http://localhost:5173/`
+
 ### Known Issues
 There is currently no news data for the MMM ticker. The FastAPI backend (the uvicorn command) will give a warning about this when starting. Missing stock data and stock news are handled on the frontend and backend, so this is not an issue.
 
