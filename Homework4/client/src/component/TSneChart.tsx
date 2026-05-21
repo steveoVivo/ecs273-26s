@@ -13,8 +13,8 @@ const labelList = ["Information_Technology", "Financials", "Industrials",
   "Energy", "Healthcare", "Consumer_Staples", "Consumer_Discretionary"] as const;
 type Labels = typeof labelList[number]
 
-const selectedDataText = "Currently Selected: "
-const unselectedDataText = "Nothing Selected";
+const selectedDataText = "Selected Ticker: "
+const unselectedDataText = "Loading...";
 
 const margin = { left: 40, right: 20, top: 20, bottom: 60 } as Margin;
   
@@ -182,45 +182,50 @@ function drawPlot(svgElement: SVGSVGElement, points: TSNEPoint[], width: number,
 
 
   // ----------> Add Hover Response Functionality <----------
-  // The factor by which to increase/decrease radii when hovered
+  // The factor by which to increase/decrease radii when selected
   const scaleFactor = 2;
-  // `mousemove` over `mouseenter` so that it stays enlarged after zoomed
-  circles.on('mousemove', (event, point: TSNEPoint) => {
-    const circle = d3.select(event.currentTarget);
-    // const currentRadius = Number(circle.node().getAttribute('r')); // Old radius, could cause problems when downscaling a zoomed in value
-    const currentRadius = d3.zoomTransform(svg.node()!).k * radius;
+  // HTML Elements / Data
+  const categorySelect = d3.select('#bar-select');
+  const initialSelected = categorySelect.property('value');
 
-    circle
-      .transition()
-      .attr('r', currentRadius * scaleFactor);
+  // On render, enlarge the circle representing the currently selected stock. No animation.
+  circles
+    .filter(circle => circle.ticker == initialSelected)
+    .attr('r', radius * scaleFactor);
 
-    d3.select("#tsne-select :nth-child(1)")
-      .text(selectedDataText)
-      .style('color', getColorFromLabel(point.label));
+  d3.select("#tsne-select :nth-child(1)")
+    .text(selectedDataText)
+    .style('color', getColorFromLabel(getIndustryFromTicker(initialSelected)));
 
-    d3.select("#tsne-select :nth-child(2)")
-      .text(point.ticker)
-      .style('visibility', null);
-  });
+  d3.select("#tsne-select :nth-child(2)")
+    .text(initialSelected)
+    .style('visibility', null);
 
-  circles.on('mouseleave', (event) => {
-    const circle = d3.select(event.currentTarget);
-    // const currentRadius = Number(circle.node().getAttribute('r')); // Old radius, could cause problems when downscaling a zoomed in value
-    const currentRadius = d3.zoomTransform(svg.node()!).k * radius;
 
-    circle
-      .transition()
-      .attr('r', currentRadius);
+  // Get ticker when changed
+  categorySelect
+    .on('change.third', function(event) {
+      const newTicker = event.target.value;
 
-    d3.select("#tsne-select :nth-child(1)")
-      .text(unselectedDataText)
-      .style('color', 'black');
+      // Transition OUT prior selection to normal
+      circles
+        .transition()
+        .attr('r', radius);
 
-    d3.select("#tsne-select :nth-child(2)")
-      .text('-')
-      .style('visibility', 'hidden');
-  });
+      // Transition IN new label, including correlated text
+      circles
+        .filter(circle => circle.ticker == newTicker)
+        .transition()
+        .attr('r', radius * scaleFactor);
 
+      d3.select("#tsne-select :nth-child(1)")
+        .text(selectedDataText)
+        .style('color', getColorFromLabel(getIndustryFromTicker(newTicker)));
+
+      d3.select("#tsne-select :nth-child(2)")
+        .text(newTicker)
+        .style('visibility', null);
+    });
 
 
   // ----------> Prevent Clipping <----------
