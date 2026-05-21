@@ -8,7 +8,7 @@ from data_scheme import StockListModel, StockModelV1, StockModelV2, StockNewsMod
 
 # MongoDB connection (localhost, default port)
 client = AsyncIOMotorClient("mongodb://localhost:27017")
-db = client.stock_steven_shoes
+db = client.stock_sts
 
 app = FastAPI(
     title="Stock tracking API",
